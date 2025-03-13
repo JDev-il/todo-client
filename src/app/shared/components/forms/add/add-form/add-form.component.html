@@ -1,0 +1,56 @@
+<section class="form-wrapper">
+  <mat-dialog-content class="mat-typography">
+    <form
+      [formGroup]="addTodoForm"
+      (ngSubmit)="$event.preventDefault(); formSubmit()"
+    >
+      <mat-form-field appearance="outline">
+        <mat-label>Title</mat-label>
+        <input type="text" matInput formControlName="title" />
+        @if (addTodoForm.get('title')?.hasError('required')) {
+        <mat-error>Title cannot be empty!</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field [style.fontSize]="16" appearance="outline">
+        <mat-label>Description (optional)</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="3"
+          cdkAutosizeMaxRows="5"
+        ></textarea>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option>None</mat-option>
+          @for (priority of priorityList; track $index) {
+          <mat-option [value]="priority">{{ priority }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Deadline</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dueDate" />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker touchUi #picker></mat-datepicker>
+        @if (addTodoForm.get('dueDate')?.hasError('required')) {
+        <mat-error>You must pick a date</mat-error>
+        }
+      </mat-form-field>
+      <mat-dialog-actions class="dialog-actions-buttons">
+        <button mat-button type="submit" [disabled]="!addTodoForm.valid">
+          Add
+        </button>
+        <button mat-button mat-dialog-close (click)="addTodoForm.reset()">
+          Cancel
+        </button>
+      </mat-dialog-actions>
+    </form>
+  </mat-dialog-content>
+</section>

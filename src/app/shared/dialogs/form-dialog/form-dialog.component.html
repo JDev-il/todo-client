@@ -1,1 +1,14 @@
-<p>form-dialog works!</p>
+<section class="dialog-wrapper">
+  <h2 mat-dialog-title>{{ dialogTitle() }}</h2>
+  @if (data.formType === "Add Todo") {
+  <app-add-form
+    [addTodoForm]="formInit"
+    (sendFormEmit)="sendForm($event)"
+  ></app-add-form>
+  } @else {
+  <app-edit-form
+    [editTodoFormInit]="formInit"
+    (sendFormEmit)="sendForm($event)"
+  ></app-edit-form>
+  }
+</section>

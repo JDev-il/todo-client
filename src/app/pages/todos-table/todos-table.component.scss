@@ -1,0 +1,113 @@
+.table-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  max-height: 85vh;
+  @media screen and (min-width: 992px) {
+    display: flex;
+    justify-content: center;
+    max-height: 75vh;
+  }
+  .mat-mdc-table {
+    max-width: 65vw !important;
+    border: 0 !important;
+
+    overflow-x: auto;
+    min-width: 800px;
+    border-collapse: collapse;
+    @media screen and (max-width: 992px) {
+      max-width: 85%;
+      @media screen and (max-width: 1280px) {
+        max-width: unset;
+      }
+    }
+    .mat-mdc-header-row {
+      height: 85px;
+      background-color: var(--main-element);
+      color: #ffff;
+      th {
+        text-align: center;
+        position: relative;
+        font-size: 20px;
+        @media screen and (max-width: 992px) {
+          font-size: 14px;
+        }
+      }
+      .mat-mdc-header-cell {
+        .completed-column {
+          position: relative;
+          top: 5px;
+          display: flex;
+          flex-flow: column;
+          justify-content: center;
+          a {
+            position: relative;
+            top: 10px;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}
+
+table {
+  width: 100%;
+  .table-overflow {
+    max-height: 100px !important;
+    overflow: auto !important;
+    background-color: red;
+  }
+}
+
+tr.table-detail-row {
+  height: 0;
+}
+
+tr.table-element-row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--main-bg);
+  }
+
+  &.selected {
+    background-color: var(--gray-400) !important;
+  }
+}
+
+.table-element-row td {
+  border-bottom-width: 0;
+  padding: 15px;
+}
+
+.mdc-data-table__cell {
+  padding: 0;
+  text-align: center;
+  font-size: 16px;
+
+  @media screen and (max-width: 992px) {
+    font-size: 14px;
+  }
+  .table-element-description {
+    font-size: 16px !important;
+    overflow-y: auto;
+    @media screen and (max-width: 992px) {
+      max-width: 65%;
+      font-size: 12px !important;
+    }
+  }
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  color: #fff;
+}
+
+/* Optional: Fix Header when scrolling */
+.mat-mdc-header-row {
+  position: sticky;
+  top: 0;
+  background-color: var(--main-element);
+  z-index: 2;
+}

@@ -1,0 +1,67 @@
+<section class="form-wrapper">
+  <mat-dialog-content class="mat-typography">
+    <form
+      [formGroup]="editTodoFormInit"
+      (ngSubmit)="$event.preventDefault(); formSubmit()"
+    >
+      <mat-form-field appearance="outline">
+        <mat-label>Title</mat-label>
+        <input
+          type="text"
+          matInput
+          formControlName="title"
+          [value]="editTodoFormInit.controls.title"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Description (optional)</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="3"
+          cdkAutosizeMaxRows="5"
+          [value]="editTodoFormInit.controls.description"
+        ></textarea>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option value="">None</mat-option>
+          @for (priority of priorityList; track priority) {
+          <mat-option [value]="priority">{{ priority }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Deadline</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="dueDate"
+          [value]="editTodoFormInit.controls.dueDate"
+        />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker touchUi #picker></mat-datepicker>
+
+        @if (editTodoFormInit.get('dueDate')?.hasError('required')) {
+        <mat-error>You must pick a date</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-dialog-actions class="dialog-actions-buttons">
+        <button mat-button type="submit" [disabled]="!editTodoFormInit.valid">
+          Save
+        </button>
+        <button mat-button mat-dialog-close (click)="editTodoFormInit.reset()">
+          Cancel
+        </button>
+      </mat-dialog-actions>
+    </form>
+  </mat-dialog-content>
+</section>

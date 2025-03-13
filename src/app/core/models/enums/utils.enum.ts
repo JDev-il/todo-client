@@ -3,3 +3,8 @@ export enum Priority {
   MEDIUM = "Medium",
   HIGH = "High"
 }
+
+export enum TodoFormTypes {
+  addTodoForm = "Add Todo",
+  editTodoForm = "Edit Todo"
+}

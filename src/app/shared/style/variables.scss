@@ -1,0 +1,12 @@
+.mat-mdc-header-cell {
+  .mat-sort-header-container {
+    justify-content: center;
+    .mat-sort-header-arrow {
+      color: #ffffff;
+    }
+  }
+}
+.add-todo-form-dialog {
+  background-color: #00000050;
+  backdrop-filter: blur(5px);
+}

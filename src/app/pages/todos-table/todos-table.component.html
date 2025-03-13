@@ -1,0 +1,74 @@
+<div class="table-wrapper">
+  @defer (when !this.dataSource.data.length) {
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    class="mat-elevation-z8 table-element"
+  >
+    <!-- Title Column -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+      <td mat-cell *matCellDef="let row" [class.strikethrough]="row.completed">
+        {{ row.title }}
+      </td>
+    </ng-container>
+
+    <!-- Description Column -->
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let row" [class.strikethrough]="row.completed">
+        {{ row.description || "N/A" }}
+      </td>
+    </ng-container>
+
+    <!-- Completed Column (Checkbox) -->
+    <ng-container matColumnDef="completed">
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="completed-column">
+          Completed <a type="button">Update Selected</a>
+        </div>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox
+          [checked]="row.completed"
+          (click)="$event.stopPropagation(); toggleCompleted(row)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let row">
+        <button
+          mat-icon-button
+          (click)="$event.stopPropagation(); editItem(row)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="$event.stopPropagation(); deleteItem(row)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <tr
+      mat-header-row
+      *matHeaderRowDef="displayedColumns"
+      class="mat-mdc-header-row"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="table-element-row"
+      [class.selected]="selection().has(row.title)"
+    ></tr>
+  </table>
+  } @placeholder {
+  <h1>No Data..</h1>
+  }
+</div>
