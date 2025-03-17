@@ -4,7 +4,7 @@ export const environment = {
   api: {
     baseUrl: "http://localhost:5001/todos",
     todos: {
-      add: "/todo",
+      add: "/add",
       update: "/update/:id",
       delete: "/delete/:id"
     }

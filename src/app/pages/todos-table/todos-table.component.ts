@@ -7,9 +7,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { throwError } from 'rxjs';
 import { TodoFormTypes } from '../../core/models/enums/utils.enum';
-import { ITodoEditReq, ITodoRes, IWebSocketMessage } from '../../core/models/interfaces/todos.interface';
+import { ITodoEditReq, ITodoRes } from '../../core/models/interfaces/todos.interface';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { HelperBaseComponent } from '../../shared/base/base-helper.component';
 import { FormsService } from '../../shared/services/forms.service';
@@ -46,20 +45,15 @@ export class TodosTableComponent extends HelperBaseComponent {
     dialog: MatDialog,
   ) {
     super(dialog)
+    this.cd.markForCheck();
     this.displayedColumns = this.stateService.tableColumnNames;
-
+    this.todosService.getTodos().subscribe();
     effect(() => {
-      this.todosService.getTodos().subscribe({
-        next: (data: ITodoRes[]) => {
-          if (data) {
-            console.log("🔥 UI Should Update - New Todos List:", this.stateService.todosList);
-            this.dataSource.data = [...this.stateService.todosList]; // Force change detection
-            this.dataSource._updateChangeSubscription(); // Ensure MatTable refresh
-          }
-        },
-        error: () => throwError(() => console.error('Error with data rendering'))
-      });
-      this.webSocketLiveMessaging();
+      if (this.stateService.todosList) {
+        this.dataSource.data = [...this.stateService.todosList];
+        this.selection.set(new Set(this.stateService.todosList.map(x => x.completed ? x.title : '')))
+        this.dataSource._updateChangeSubscription();
+      }
     }, { allowSignalWrites: true });
   }
 
@@ -68,9 +62,8 @@ export class TodosTableComponent extends HelperBaseComponent {
       console.warn("Cannot complete a Todo while it's being edited");
       return;
     }
-    this.webSocketService.toggleComplete(row.title, !row.completed);
-    this.selection.update((selction) => {
-      const newSelection = new Set([...selction]);
+    const newSelection = new Set([...this.selection()]);
+    this.selection.update(() => {
       if (newSelection.has(row.title)) {
         newSelection.delete(row.title);
         row.completed = false;
@@ -99,48 +92,9 @@ export class TodosTableComponent extends HelperBaseComponent {
 
   public deleteItem(todo: ITodoRes) {
     if (todo.isEditing) {
-      console.warn("Cannot delete a Todo being edited!");
+      console.warn("Cannot delete a Todo is being edited!");
       return;
     }
-  }
-
-  private webSocketLiveMessaging(): void {
-    this.webSocketService.messages$.subscribe((message: IWebSocketMessage) => {
-      console.log("🔴 Received WebSocket Message:", message);
-
-      if (!message || !message.type) return;
-
-      switch (message.type) {
-        case "LOCK_TODO":
-          this.stateService.updateTodoLock(message.todoId, message.clientId ?? null);
-          break;
-        case "UNLOCK_TODO":
-          this.stateService.updateTodoLock(message.todoId, null);
-          break;
-        case "TOGGLE_COMPLETE":
-          if (message.completed !== undefined) {
-            this.stateService.updateTodoCompletion(message.todoId, message.completed);
-          }
-          break;
-        case "CREATE":
-          if (message.todo) {
-            console.log("🟢 New Todo received:", message.todo);
-            this.stateService.todosList = [...this.stateService.todosList, message.todo]; // Force update
-          }
-          break;
-        case "DELETE":
-          if (message) {
-            console.log("🟡 Deleting Todo:", message.id);
-            this.stateService.todosList = this.stateService.todosList.filter(todo => todo._id !== message.id);
-          }
-          break;
-        case "READ":
-          if (message.todos) {
-            console.log("🔵 Receiving Todos from WS:", message.todos);
-            this.stateService.todosList = [...message.todos]; // Replace list with latest
-          }
-          break;
-      }
-    });
+    this.todosService.deleteTodo(todo).subscribe()
   }
 }

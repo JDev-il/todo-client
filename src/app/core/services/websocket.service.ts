@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { retry, shareReplay, Subject } from 'rxjs';
+import { shareReplay, Subject } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '../../../environments/environment';
 import { StateService } from '../../shared/services/state.service';
@@ -10,7 +10,7 @@ import { IWebSocketMessage } from './../models/interfaces/todos.interface';
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
   private platformId = inject(PLATFORM_ID);
-  private socket$: WebSocketSubject<any> | null = null;
+  private socket$ = new WebSocketSubject<IWebSocketMessage>("");
   private messagesSubject$ = new Subject<IWebSocketMessage>();
   public messages$ = this.messagesSubject$.asObservable().pipe(shareReplay(1));
 
@@ -37,20 +37,26 @@ export class WebSocketService {
         }
       });
 
-      this.socket$.pipe(retry({ count: 5, delay: 3000 })).subscribe({
-        next: (message: IWebSocketMessage) => this.handleMessage(message),
-        error: (err) => console.error("🚨 WebSocket error:", err),
+      this.socket$.subscribe({
+        next: (message: IWebSocketMessage) => {
+          console.log("WebSocket message received:", message);
+          this.handleMessage(message);
+        },
+        error: (err) => {
+          console.error("WebSocket error, attempting reconnect...", err);
+          setTimeout(() => this.connect(), 3000); // 🛠 Auto-reconnect after 3s
+        },
         complete: () => {
-          console.warn("🔌 WebSocket closed, reconnecting...");
-          setTimeout(() => this.connect(), 3000); // Reconnect after 3 seconds
+          console.warn("⚠ WebSocket closed, reconnecting...");
+          setTimeout(() => this.connect(), 3000);
         }
       });
 
-      console.log("✅ WebSocket connection established.");
+      console.log("WebSocket connection attempt sent.");
     }
   }
 
-  public sendMessage(message: string | any): void {
+  public sendMessage(message: IWebSocketMessage | any): void {
     if (this.socket$) {
       try {
         this.socket$.next(message);
@@ -74,12 +80,12 @@ export class WebSocketService {
     this.sendMessage({ type: "TOGGLE_COMPLETE", todoId, completed });
   }
 
-  private handleMessage(message: IWebSocketMessage): void {
+  private handleMessage(message: IWebSocketMessage | null): void {
     if (!message || !message.type) return;
 
     switch (message.type) {
       case 'LOCK_TODO':
-        if (message.clientId !== undefined) {
+        if (message.clientId !== null) {
           this.stateService.updateTodoLock(message.todoId, message.clientId);
         }
         break;
@@ -96,13 +102,14 @@ export class WebSocketService {
 
       case 'CREATE':
         if (message.todo) {
-          console.log(`New Todo received:`, message.todo);
-          this.stateService.todosList = [...this.stateService.todosList, message.todo]; // Ensures new reference
+          console.log("Created", message.todo);
+
+          // this.stateService.updateTodo(message.todo);
         }
         break;
 
       case 'DELETE':
-        this.stateService.todosList = this.stateService.todosList.filter(todo => todo.title !== message.todoId);
+        /* this.stateService.todosList = this.stateService.todosList.filter(todo => todo._id !== message.id); */
         break;
     }
   }

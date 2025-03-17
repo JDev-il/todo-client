@@ -24,19 +24,13 @@ export class ApiService {
     return this.http.post<ITodoRes>(this.todosUrls.addTodo, todoAdd);
   }
 
-  public editTodoReq(todoEdit: ITodoEditReq): Observable<ITodoRes[]> {
+  public editTodoReq(todoEdit: ITodoEditReq): Observable<ITodoRes> {
     const url = this.todosUrls.updateTodo.replace(":id", encodeURIComponent(todoEdit._id));
-    return this.http.put<ITodoRes[]>(url, todoEdit);
+    return this.http.put<ITodoRes>(url, todoEdit);
   }
 
-  public deleteTodoReq(todoDelete: ITodoRes): Observable<any> {
+  public deleteTodoReq(todoDelete: ITodoRes): Observable<ITodoRes> {
     const url = this.todosUrls.deleteTodo.replace(":id", encodeURIComponent(todoDelete._id));
-    return this.http.delete<ITodoRes>(url);
+    return this.http.post<ITodoRes>(url, todoDelete);
   }
-
-  public isCompletedUpdateReq(todo: ITodoRes): void {
-    console.log(todo);
-  }
-
-
 }

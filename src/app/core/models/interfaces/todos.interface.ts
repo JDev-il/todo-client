@@ -32,9 +32,9 @@ export interface ITodoEditReq {
 
 export interface IWebSocketMessage {
   id: string,
-  type: "LOCK_TODO" | "UNLOCK_TODO" | "TOGGLE_COMPLETE" | "CREATE" | "DELETE" | "READ";
+  type: "LOCK_TODO" | "UNLOCK_TODO" | "TOGGLE_COMPLETE" | "CREATE" | "DELETE" | "READ" | "UPDATE";
   todoId: string;
-  clientId?: string | null;
+  clientId: string | null;
   completed?: boolean;
   todo?: ITodoRes;
   todos?: ITodoRes[];

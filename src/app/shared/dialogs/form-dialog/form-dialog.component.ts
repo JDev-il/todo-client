@@ -61,9 +61,8 @@ export class FormDialogComponent {
       const todo = form.value as ITodoReq;
       this.todoService.addTodo(todo).subscribe();
     } else {
-      let id = this.stateService.currentTodo._id
       let todoEdit = form.getRawValue() as ITodoEditReq;
-      todoEdit._id = id;
+      todoEdit._id = this.stateService.currentTodo._id;
       this.todoService.editTodo(todoEdit).subscribe();
     }
     this.dialogActions();
