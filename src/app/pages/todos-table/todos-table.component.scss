@@ -40,10 +40,18 @@
           display: flex;
           flex-flow: column;
           justify-content: center;
-          a {
+          .complete-item {
+            background: none;
+            border: none;
             position: relative;
             top: 10px;
             font-size: 12px;
+            cursor: pointer;
+            color: red;
+            &:disabled {
+              color: #c7c7c774;
+              cursor: auto;
+            }
           }
         }
       }

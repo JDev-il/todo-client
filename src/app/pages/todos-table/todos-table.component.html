@@ -26,7 +26,15 @@
     <ng-container matColumnDef="completed">
       <th mat-header-cell *matHeaderCellDef>
         <div class="completed-column">
-          Completed <a type="button">Update Selected</a>
+          Completed
+          <button
+            type="button"
+            class="complete-item"
+            [disabled]="!isSelection()"
+            (click)="updateComplete()"
+          >
+            Update Selected
+          </button>
         </div>
       </th>
       <td mat-cell *matCellDef="let row">

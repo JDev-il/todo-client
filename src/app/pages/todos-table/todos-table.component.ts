@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, signal, ViewChild } from '@angular/core';
+import { ITodoEditReq } from './../../core/models/interfaces/todos.interface';
 import { TodosService } from './../../shared/services/todos.service';
 
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { TodoFormTypes } from '../../core/models/enums/utils.enum';
-import { ITodoEditReq, ITodoRes } from '../../core/models/interfaces/todos.interface';
+import { ITodoRes } from '../../core/models/interfaces/todos.interface';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { HelperBaseComponent } from '../../shared/base/base-helper.component';
 import { FormsService } from '../../shared/services/forms.service';
@@ -23,7 +25,9 @@ import { StateService } from '../../shared/services/state.service';
     MatSortModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatIconModule],
+    MatIconModule,
+    CommonModule
+  ],
   templateUrl: './todos-table.component.html',
   styleUrl: './todos-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -33,6 +37,7 @@ export class TodosTableComponent extends HelperBaseComponent {
   @ViewChild(MatSort) sort!: MatSort;
   public completedList = signal(new Set<ITodoRes>());
   public selection = signal(new Set<string>());
+  public isSelection = signal(false);
   public displayedColumns: string[];
   public dataSource: MatTableDataSource<ITodoRes> = new MatTableDataSource<ITodoRes>([]);
 
@@ -62,8 +67,8 @@ export class TodosTableComponent extends HelperBaseComponent {
       console.warn("Cannot complete a Todo while it's being edited");
       return;
     }
-    const newSelection = new Set([...this.selection()]);
     this.selection.update(() => {
+      const newSelection = new Set([...this.selection()]);
       if (newSelection.has(row.title)) {
         newSelection.delete(row.title);
         row.completed = false;
@@ -73,6 +78,7 @@ export class TodosTableComponent extends HelperBaseComponent {
       }
       return newSelection;
     });
+    this.isSelection.set(this.selection().size > 0);
   }
 
   public editItem(todo: ITodoRes): void {
@@ -96,5 +102,16 @@ export class TodosTableComponent extends HelperBaseComponent {
       return;
     }
     this.todosService.deleteTodo(todo).subscribe()
+  }
+
+  public updateComplete() {
+    const todosToUpdate = this.stateService.todosList
+      .map(todo => ({
+        _id: todo._id,
+        completed: todo.completed
+      }));
+    this.todosService.editManyTodos(todosToUpdate).subscribe(response => {
+      this.isSelection.set(false);
+    });
   }
 }

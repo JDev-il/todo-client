@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ITodoEditReq, ITodoReq, ITodoRes } from '../models/interfaces/todos.interface';
+import { Completion, ITodoEditReq, ITodoReq, ITodoRes } from '../models/interfaces/todos.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -11,6 +11,7 @@ export class ApiService {
   private todosUrls = {
     addTodo: `${this.baseUrl}${this.todosEnpoints.add}`,
     updateTodo: `${this.baseUrl}${this.todosEnpoints.update}`,
+    updateTodos: `${this.baseUrl}${this.todosEnpoints.many}`,
     deleteTodo: `${this.baseUrl}${this.todosEnpoints.delete}`
   }
 
@@ -33,4 +34,10 @@ export class ApiService {
     const url = this.todosUrls.deleteTodo.replace(":id", encodeURIComponent(todoDelete._id));
     return this.http.post<ITodoRes>(url, todoDelete);
   }
+
+  public updateManyTodosReq(todos: Completion[]): Observable<ITodoRes[]> {
+    const url = this.todosUrls.updateTodos;
+    return this.http.patch<ITodoRes[]>(url, { todos });
+  }
+
 }

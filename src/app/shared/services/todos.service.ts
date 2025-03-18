@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, shareReplay, Subject, take, tap } from 'rxjs';
+import { Observable, shareReplay, Subject, switchMap, take, tap } from 'rxjs';
 import { Actions } from '../../core/models/enums/utils.enum';
-import { ITodoEditReq, ITodoReq, ITodoRes, IWebSocketMessage } from '../../core/models/interfaces/todos.interface';
+import { Completion, ITodoEditReq, ITodoReq, ITodoRes, IWebSocketMessage } from '../../core/models/interfaces/todos.interface';
 import { ApiService } from '../../core/services/api.service';
 import { WebSocketService } from '../../core/services/websocket.service';
 import { StateService } from './state.service';
@@ -30,8 +30,6 @@ export class TodosService {
     return this.apiService.addTodoReq(todo).pipe(
       take(1),
       tap((newTodo: ITodoRes) => {
-        console.log("???");
-
         this.stateService.todosList = [...this.stateService.todosList, newTodo];
         this.wsService.sendMessage(<IWebSocketMessage>{ type: 'CREATE', todo: newTodo })
       })
@@ -48,14 +46,24 @@ export class TodosService {
     );
   }
 
+  public editManyTodos(todos: Completion[]): Observable<ITodoRes[]> {
+    return this.apiService.updateManyTodosReq(todos).pipe(
+      take(1),
+      tap((todosUpdated: ITodoRes[]) => {
+        this.wsService.sendMessage(<IWebSocketMessage>{ type: 'UPDATE', todos: todosUpdated });
+      }),
+      switchMap(() => this.getTodos())
+    )
+  }
+
   public deleteTodo(todo: ITodoRes): Observable<ITodoRes> {
     return this.apiService.deleteTodoReq(todo).pipe(
       take(1),
       tap((deletedTodo: ITodoRes) => {
-
         this.stateService.updateTodos(deletedTodo, Actions.DELETE);
         this.wsService.sendMessage(<IWebSocketMessage>{ type: 'DELETE', todo: deletedTodo })
       }),
     )
   }
+
 }

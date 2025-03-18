@@ -39,3 +39,8 @@ export interface IWebSocketMessage {
   todo?: ITodoRes;
   todos?: ITodoRes[];
 }
+
+export type Completion = {
+  _id: string,
+  completed: boolean
+}
